@@ -1,0 +1,1 @@
+is_active = [(True, 'YES'), (False, 'NO')]
