@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from create_menu1 import CreateMenu
+from create_menu import CreateMenu
 from model.create_menu_model import CreateMenuModel
 # from take_order import TakeOrder
 from controller.create_menu_controller import CreateMenuController

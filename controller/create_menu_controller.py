@@ -1,6 +1,6 @@
 import psycopg2
 from datetime import datetime
-from create_menu1 import CreateMenu
+from views.create_menu import CreateMenu
 
 
 class CreateMenuController():

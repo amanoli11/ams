@@ -1,6 +1,13 @@
 import tkinter as tk
 from tkinter import END, StringVar, ttk
-import psycopg2
+
+
+# # importing sys
+# import sys
+  
+# # adding Folder_2 to the system path
+# sys.path.insert(0, '/home/amanoli/ams')
+
 from libraries.amscombobox import AMSComboBox
 from libraries.amsentrybox import AMSEntryBox
 from libraries.amstreeview import AMSTreeVIew
