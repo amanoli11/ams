@@ -21,11 +21,11 @@ class CreateMenuController():
         self.model = model
         self.view = view
 
-    def save(self, item_name, price, uom, uom_id):
-        self.model.save(item_name, price, uom, uom_id)
+    def save(self, item_name, price, uom, uom_id, is_active, is_deleted):
+        self.model.save(item_name, price, uom, uom_id, is_active, is_deleted)
 
-    def update(self, item_id, item_name, price, uom_id):
-        self.model.update(item_id, item_name, price, uom_id)
+    def update_menu_item(self, menu_id, item_name, price, uom_id, is_active, is_deleted):
+        self.model.update_menu_item(menu_id, item_name, price, uom_id, is_active, is_deleted)
 
     def lister(self, parent):
         self.model.lister(parent)

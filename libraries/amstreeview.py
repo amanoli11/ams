@@ -44,15 +44,9 @@ def AMSTreeVIew(parent, table_column, table_values, frame_name = "TABLE", table_
 
     tree.tag_configure('oddcolumn', background='white')
     tree.tag_configure('evencolumn', background='lightblue')
-    count = 0
 
+    AMSStripedRows(tree, table_values)
 
-    for i in table_values:
-        if count % 2 == 0:
-            tree.insert('', tk.END, values=i, tags='oddcolumn')
-        else:
-            tree.insert('', tk.END, values=i, tags='evencolumn')
-        count += 1
 
     tree.grid(row=1, column=0, padx=(10,0), pady=10)
 
@@ -65,6 +59,18 @@ def AMSTreeVIew(parent, table_column, table_values, frame_name = "TABLE", table_
     #     filter_table(tree, parent, table_column, options)
 
     return lf, tree, options
+
+
+def AMSStripedRows(tree, table_values):
+    count = 0
+
+
+    for i in table_values:
+        if count % 2 == 0:
+            tree.insert('', tk.END, values=i, tags='oddcolumn')
+        else:
+            tree.insert('', tk.END, values=i, tags='evencolumn')
+        count += 1
 
 
 

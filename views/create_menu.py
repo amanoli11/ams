@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import END, StringVar, ttk
+from tkinter import END, FIRST, TOP, StringVar, ttk
 import psycopg2
 # from controller.create_menu_controller import CreateMenuController
 
@@ -9,7 +9,7 @@ from controller.create_uom_controller import CreateUomController
 
 from libraries.amsentrybox import AMSEntryBox
 from libraries.amscombobox import AMSComboBox
-from libraries.amstreeview import AMSTreeVIew
+from libraries.amstreeview import AMSStripedRows, AMSTreeVIew
 from libraries.amsgetindex import AMSGetIndex
 
 from libraries.static_values import is_active
@@ -52,8 +52,8 @@ class CreateMenu(ttk.Frame):
 
         self.is_active = is_active
 
-        self.is_active_value = None
-        self.is_deleted_value = None
+        self.is_active_value = True
+        self.is_deleted_value = False
 
     def set_controller(self, controller):
         self.controller = controller
@@ -78,73 +78,59 @@ class CreateMenu(ttk.Frame):
         item_name_label.grid(row=1, column=0, sticky=tk.W, pady=5, padx=5)
 
 
-        global item_name
-        item_name = AMSEntryBox(self, self.lf, 'item_name', placeholder="PLEASE INSERT AN ITEM NAME")
+
+        self.item_name_widget = AMSEntryBox(self, self.lf, 'item_name', placeholder="PLEASE INSERT AN ITEM NAME")
         # item_name.bind("<KeyRelease>", caps)
-        item_name.focus()
-        item_name.grid(row=1, column=1, pady=5, padx=15, ipadx=40)
+        self.item_name_widget.focus()
+        self.item_name_widget.grid(row=1, column=1, pady=5, padx=15, ipadx=40)
 
 
         price_label = ttk.Label(self.lf, text="PRICE")
         price_label.grid(row=2, column=0, sticky=tk.W, pady=5, padx=5)
 
+        def price(price_string):
+            self.price = int(price_string.get())
 
-        global price
-        price = ttk.Spinbox(self.lf, from_=0, to=9999999, wrap=False)
-        price.set(0)
-        price.grid(row=2, column=1, pady=5, padx=15, ipadx=30)
+        price_string = StringVar()
+        self.price_widget = ttk.Spinbox(self.lf, from_=0, to=9999999, wrap=False, textvariable=price_string)
+        self.price_widget.bind("<KeyRelease>", lambda event: price(price_string))
+        self.price_widget.set(0)
+        self.price_widget.grid(row=2, column=1, pady=5, padx=15, ipadx=30)
 
-        global uom
+        
         uom_label = ttk.Label(self.lf, text="UOM")
         uom_label.grid(row=3, column=0, sticky=tk.W, pady=5, padx=5)
 
-        uom = AMSComboBox(self.lf, self, self.uom_ddl, 'uom_id', 'uom_index', placeholder="PLEASE CHOOSE AN UOM", filter=True)
-        uom.grid(row=3, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+        self.uom_widget = AMSComboBox(self.lf, self, self.uom_ddl, 'uom_id', 'uom_index', placeholder="PLEASE CHOOSE AN UOM", filter=True)
+        self.uom_widget.grid(row=3, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
 
         is_active_label = ttk.Label(self.lf, text="IS ACTIVE")
         is_active_label.grid(row=4, column=0, sticky=tk.W, pady=5, padx=5)
         
-        is_active = AMSComboBox(self.lf, self, self.is_active, 'is_active', 'is_active_index', placeholder="IS ACTIVE")
-        is_active.current(0)
-        is_active.grid(row=4, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+        self.is_active_widget = AMSComboBox(self.lf, self, self.is_active, 'is_active_value', 'is_active_index', placeholder="IS ACTIVE")
+        self.is_active_widget.current(0)
+        self.is_active_widget.grid(row=4, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
         is_deleted_label = ttk.Label(self.lf, text="IS DELETED")
         is_deleted_label.grid(row=5, column=0, sticky=tk.W, pady=5, padx=5)
 
-        is_deleted = AMSComboBox(self.lf, self, self.is_active, 'is_deleted', 'is_deleted_index', placeholder="IS DELETED")
-        is_deleted.current(1)
-        is_deleted.grid(row=5, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+        self.is_deleted_widget = AMSComboBox(self.lf, self, self.is_active, 'is_deleted_value', 'is_deleted_index', placeholder="IS DELETED")
+        self.is_deleted_widget.current(1)
+        self.is_deleted_widget.grid(row=5, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
-        clear_btn = ttk.Button(self.lf, text="CLEAR", command=lambda: self.clear_values(
-            item_name,
-            price,
-            uom))
+        clear_btn = ttk.Button(self.lf, text="CLEAR", command= lambda: self.clear_values(event = None))
 
-        clear_btn.bind('<Return>', lambda event: self.clear_values(item_name,
-                                                                price,
-                                                                uom))
+        clear_btn.bind('<Return>', self.clear_values)
 
         clear_btn.grid(row=6, column=0, sticky=tk.E)
 
 
-        global submit_btn
-        submit_btn = ttk.Button(self.lf, text="SAVE MENU", command=lambda: self.submit_menu(item_name.get(),
-                                                                                       price.get(),
-                                                                                       uom.get(),
-                                                                                       self.uom_id,
-                                                                                       item_name,
-                                                                                       price,
-                                                                                       uom))
-        submit_btn.bind('<Return>', lambda event: self.submit_menu(item_name.get(),
-                                                                   price.get(),
-                                                                   uom.get(),
-                                                                   self.uom_id,
-                                                                   item_name,
-                                                                   price,
-                                                                   uom))
+        
+        self.submit_btn = ttk.Button(self.lf, text="SAVE MENU", command=lambda: self.submit_menu(event = None))
+        self.submit_btn.bind('<Return>', self.submit_menu)
 
-        submit_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
+        self.submit_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
 
         # label1 = ttk.Label(self, text="ACTIONS", font="Verdana, 15")
         # label1.grid(column=0, row=1, sticky=tk.W, padx=10)
@@ -158,182 +144,104 @@ class CreateMenu(ttk.Frame):
         take_order_btn = ttk.Button(action_label_frame, text="TAKE ORDER")
         take_order_btn.grid(column=1, row=0, padx=13, pady=10)
 
-    # def update_menu_items(self):
-    #     label = ttk.Label(self, text="Create Menu", font="Verdana, 15")
-    #     label.grid(column=0, row=0, sticky=tk.W, padx=10)
 
-    #     self.lf = ttk.LabelFrame(self, text='Create Menu')
-    #     self.lf.grid(column=0, row=1, padx=10, pady=10, sticky=tk.NW)
+        options = tk.Menu(self.lf, tearoff = False)
+        options.add_command(label ="RESET", command=self.reset_field)
 
-    #     # style = ttk.Style()
-    #     # style.theme_use('clam')
-    #     # style.configure("TLabelframe", bordercolor="green")
+        def option_menu(event):
+            options.tk_popup(event.x_root, event.y_root)
 
-    #     item_name_label = ttk.Label(self.lf, text="ITEM NAME")
-    #     item_name_label.grid(row=1, column=0, sticky=tk.W, pady=5, padx=5)
 
-    #     def caps(event):
-    #         v.set(v.get().upper())
+        self.lf.bind("<Button-3>", option_menu)
 
-    #     v = StringVar()
 
-    #     item_name = ttk.Entry(self.lf, width=30, textvariable=v)
-    #     item_name.insert(END, self.item_name1)
-    #     item_name.bind("<KeyRelease>", caps)
-    #     item_name.grid(row=1, column=1, pady=5, padx=15)
+    def reset_field(self):
 
-    #     price_label = ttk.Label(self.lf, text="PRICE")
-    #     price_label.grid(row=2, column=0, sticky=tk.W, pady=5, padx=5)
 
-    #     price = ttk.Entry(self.lf, width=30)
-    #     price.insert(END, self.price)
-    #     price.grid(row=2, column=1, pady=5, padx=15)
+        self.update_btn.grid_remove()
 
-    #     uom_label = ttk.Label(self.lf, text="UOM")
-    #     uom_label.grid(row=3, column=0, sticky=tk.W, pady=5, padx=5)
 
-    #     def callback(*args):
-    #         numberr = [row[0] for row in self.uom_list
-    #                    if row[1] == variable.get()
-    #                    ]
 
-    #         if len(numberr) > 0:
-    #             s = [str(integer) for integer in numberr]
-    #             a_string = "".join(s)
+        self.submit_btn = ttk.Button(self.lf, text="SAVE MENU", command=lambda: self.submit_menu(event = None))
+        self.submit_btn.bind('<Return>', self.submit_menu)
 
-    #             res = int(a_string)
+        self.submit_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
 
-    #             self.uom = res
+        self.clear_values(event = None)
 
-    #     variable = StringVar()
-    #     uom = ttk.Combobox(self.lf, value=self.uom_values, textvariable=variable)
-    #     uom.bind('<<ComboboxSelected>>', callback)
-    #     uom.set('PLEASE SELECT A UOM')
-    #     if(self.uom > 0):
-    #         uom.current(self.uom - 1)
+    
+    def update_menu_item(self, item_name, price, uom, is_active, is_deleted, uom_id, menu_id):
+        
+        self.item_name_widget.delete(0, END)
+        self.item_name_widget.insert(END, item_name)
+
+        self.price_widget.set(price)
+
+        self.uom_widget.current(AMSGetIndex(self.uom_ddl, uom_id))
+
+        self.is_active_widget.current(AMSGetIndex(self.is_active, is_active))
+
+        self.is_deleted_widget.current(AMSGetIndex(self.is_active, is_deleted))
+
+        self.submit_btn.grid_remove()
+
+        # selected = self.tree.focus()
+        # values = self.tree.item(selected, values=(name,))
+        
+
+
+
+        def update(self, event):
+
+            selected = self.tree.focus()
+            print(selected)
+            self.tree.item(selected, values=(self.item_name, self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id, menu_id))
+            self.controller.update_menu_item(menu_id, self.item_name, self.price, self.uom_id, self.is_active_value, self.is_deleted_value)
+
+            self.clear_values(event=None)
             
-    #     uom.grid(row=3, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+            self.controller.lister(self)
 
-    #     # clear_btn = ttk.Button(self.lf, text="CLEAR", command=lambda: self.clear_values(
-    #     #                                                                         item_name.delete(0, END),
-    #     #                                                                         price.delete(0, END),
-    #     #                                                                         uom.delete(0, END)))
+        self.update_btn = ttk.Button(self.lf, text="UPDATE MENU", command = lambda: update(self, event= None))
+        self.update_btn.bind('<Return>', lambda event: update(self, event = None))
 
-    #     clear_btn = ttk.Button(self.lf, text="CLEAR", command=lambda: self.clear_values(item_name,
-    #                                                                             price,
-    #                                                                             uom))
-
-    #     clear_btn.bind('<Return>', lambda event: self.clear_values(item_name,
-    #                                                             price,
-    #                                                             uom))
-
-    #     clear_btn.grid(row=4, column=0, sticky=tk.E)
-
-    #     submit_btn = ttk.Button(self.lf, text="UPDATE MENU", command=lambda: self.submit_updated_menu(self.item_id,
-    #                                                                                              item_name.get(),
-    #                                                                                              price.get(),
-    #                                                                                              uom.get(),
-    #                                                                                              self.uom,
-    #                                                                                              item_name,
-    #                                                                                              price,
-    #                                                                                              uom))
-
-    #     submit_btn.bind('<Return>', lambda event: self.submit_updated_menu(self.item_id,
-    #                                                                 item_name.get(),
-    #                                                                 price.get(),
-    #                                                                 uom.get(),
-    #                                                                 self.uom,
-    #                                                                 item_name,
-    #                                                                 price,
-    #                                                                 uom))
-
-    #     submit_btn.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
-
-
-    def update_menu_items(self, menu_name, item_price, item_uom, item_is_active, item_is_deleted, item_uom_id):
-
-        item_name.delete(0, END)
-        item_name.insert(0, menu_name)
-
-        price.set(item_price)
-
-        uom.current(AMSGetIndex(self.uom_ddl, item_uom_id))
-
-        submit_btn.grid_forget()
-
-        update_btn = ttk.Button(self.lf, text="UPDATE MENU", command=lambda: self.submit_updated_menu(self.item_id,
-                                                                                                 item_name.get(),
-                                                                                                 price.get(),
-                                                                                                 uom.get(),
-                                                                                                 self.uom,
-                                                                                                 item_name,
-                                                                                                 price,
-                                                                                                 uom))
-
-        update_btn.bind('<Return>', lambda event: self.submit_updated_menu(self.item_id,
-                                                                    item_name.get(),
-                                                                    price.get(),
-                                                                    uom.get(),
-                                                                    self.uom,
-                                                                    item_name,
-                                                                    price,
-                                                                    uom))
-
-        update_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
-
+        self.update_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
 
 
     def show_menu_items(self):
         
-        columns = ("MENU NAME", "PRICE", "UOM", "IS ACTIVE", "IS DELETED")
+        columns = ("MENU NAME", "PRICE", "UOM", "IS ACTIVE", "IS DELETED", "UOM ID", "MENU ID")
         frame, tree, option = AMSTreeVIew(self, columns, self.output, frame_name="MENU ITEMS", table_height=20)
-        
-        # tree = ttk.Treeview(self, columns=columns, show='headings', height=25)
-        # tree.column("# 1", anchor=tk.W, stretch=tk.NO, width=320)
-        # tree.column("# 2", anchor=tk.E, stretch=tk.NO, width=100)
-        # tree.column("# 3", anchor=tk.W, stretch=tk.NO, width=115)
-        # tree.column("# 4", anchor=tk.W, stretch=tk.NO, width=80)
-        # tree.heading('MENU NAME', text='MENU NAME')
-        # tree.heading('PRICE', text='PRICE')
-        # tree.heading('UOM', text='UOM')
-        # tree.heading('IS ACTIVE', text='IS ACTIVE')
 
-        
-        # for i in self.output:
-        #     tree.insert('', tk.END, values=i)
+        self.tree = tree
+        self.tree["displaycolumns"]=("MENU NAME", "PRICE", "UOM", "IS ACTIVE", "IS DELETED")
 
-
-        tree.column("# 1", anchor=tk.W, stretch=tk.NO, width=320)
-        tree.column("# 2", anchor=tk.E, stretch=tk.NO, width=100)
-        tree.column("# 3", anchor=tk.W, stretch=tk.NO, width=115)
-        tree.column("# 4", anchor=tk.W, stretch=tk.NO, width=85)
-        tree.column("# 5", anchor=tk.W, stretch=tk.NO, width=95)
+        self.tree.column("# 1", anchor=tk.W, stretch=tk.NO, width=320)
+        self.tree.column("# 2", anchor=tk.E, stretch=tk.NO, width=100)
+        self.tree.column("# 3", anchor=tk.W, stretch=tk.NO, width=115)
+        self.tree.column("# 4", anchor=tk.W, stretch=tk.NO, width=85)
+        self.tree.column("# 5", anchor=tk.W, stretch=tk.NO, width=95)
 
         def item_selected(event):
 
-            x = tree.selection()
-            y = tree.item(x)['values']
-            # self.item_id = y[5]
-            # self.item_name1 = y[0]
-            # self.price = y[1]
-            # self.uom = y[2]
-            self.update_menu_items(y[0], y[1], y[2], y[3], y[4], y[5])
+            x = self.tree.selection()
+            y = self.tree.item(x)['values']
+
+            print(y)
+
+            self.item_name = y[0]
+            self.price = y[1]
+            self.uom_id = y[5]
+            self.is_active_value = y[3]
+            self.is_deleted_value = y[4]
+
+            self.update_menu_item(y[0], y[1], y[2], y[3], y[4], y[5], y[6])
 
 
-            # for selected_item in tree.selection():
-            #     item = tree.item(selected_item)
-            #     record = item['values']
-
-            #     self.item_name = record[0]
-
-        tree.bind('<<TreeviewSelect>>', item_selected)
+        self.tree.bind('<<TreeviewSelect>>', item_selected)
 
         frame.grid(row=1, column=1, sticky=tk.NE, padx=(30, 0))
 
-        scrollbar = ttk.Scrollbar(
-            self, orient=tk.HORIZONTAL, command=tree.xview)
-        tree.configure(xscroll=scrollbar.set)
-        scrollbar.grid(row=3, column=1, sticky='ew')
 
     def show_menu_ddl(self):
         conn = psycopg2.connect(
@@ -351,19 +259,58 @@ class CreateMenu(ttk.Frame):
         conn.commit()
         conn.close()
 
-    def clear_values(self, item_name, price, uom):
-        item_name.delete(0, END)
-        price.delete(0, END)
-        uom.delete(0, END)
-        uom.set("PLEASE SELECT A UOM")
-        item_name.focus()
+    def clear_values(self, event):
+        
+        self.item_name_widget.delete(0, END)
+        
+        self.price_widget.delete(0, END)
+        self.price_widget.set(0)
+        
+        self.uom_widget.delete(0, END)
+        self.uom_widget.set("PLEASE SELECT AN UOM")
+        
+        self.item_name_widget.focus()
 
-    def submit_menu(self, item_name, price, uom, uom_id, item_del, price_del, uom_del):
-        self.controller.save(item_name, price, uom, uom_id)
-        self.clear_values(item_del, price_del, uom_del)
+        self.is_active_value = True
+        self.is_deleted_value = False
 
+        self.is_active_widget.current(0)
+        self.is_deleted_widget.current(1)
+
+    def submit_menu(self, event):
+
+        # self.tree.insert("", index=0, values = (self.item_name_widget.get(), self.price_widget.get(), self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id))
+        # self.controller.save(self.item_name_widget.get(), self.price_widget.get(), self.uom_widget.get(), self.uom_id, self.is_active_value, self.is_deleted_value)
+
+        # self.controller.lister(self)
+        # self.clear_values(event=None)
+
+        self.controller.save(self.item_name_widget.get(), self.price_widget.get(), self.uom_widget.get(), self.uom_id, self.is_active_value, self.is_deleted_value)
+        self.tree.delete(*self.tree.get_children())
         self.controller.lister(self)
-        self.show_menu_items()
+
+        AMSStripedRows(self.tree, self.output)
+
+        self.clear_values(event=None)
+
+        # for i in self.output:
+        #     self.tree.insert("", END, values=i)
+
+
+
+
+        # selected = self.tree.focus()
+        # print(selected)
+        # self.tree.item(selected, values=(self.item_name, self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, uom_id, menu_id))
+        # self.controller.update_menu_item(menu_id, self.item_name, self.price, self.uom_id, self.is_active_value, self.is_deleted_value)
+        # self.clear_values(event=None)
+
+
+
+
+
+        # self.controller.lister(self)
+        # self.show_menu_items()
 
     def submit_updated_menu(self, item_id, item_name, price, uom, uom_id, item_del, price_del, uom_del):
         self.controller.update(item_id, item_name, price, uom, uom_id)

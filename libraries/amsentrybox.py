@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import END, StringVar, ttk
 
-def AMSEntryBox(parent, container, value, placeholder = None):
+def AMSEntryBox(parent, container, value = None, placeholder = None):
 
     def clear_place_holder(string):
             setattr(parent, value, string.get())
@@ -13,9 +13,9 @@ def AMSEntryBox(parent, container, value, placeholder = None):
         if string.get() == "":
             entry_box.insert(END, placeholder)
 
-        if string.get() == placeholder:
+        if string.get() == placeholder and value is not None:
             setattr(parent, value, '')
-        else:
+        elif value is not None:
             setattr(parent, value, string.get())
 
     def remove_place_holder(string):

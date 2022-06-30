@@ -33,26 +33,26 @@ class CreateMenuModel():
         self.list = {}
         print("model.py")
     
-    def save(item_name, price, uom, uom_id):
+    def save(item_name, price, uom, uom_id, is_active, is_deleted):
         print("SAVE")
         conn = psycopg2.connect(
             database="Demo", user="postgres", password="12345", host="localhost")
         c = conn.cursor()
 
         c.execute("insert into menu (item_name, price, uom_id, is_active, is_deleted, created_date) values(%s, %s, %s, %s, %s, %s)",
-                  (item_name, price, uom_id, True, False, datetime.now()))
+                  (item_name, price, uom_id, is_active, is_deleted, datetime.now()))
 
         conn.commit()
         conn.close()
 
-    def update(item_id, item_name, price, uom_id):
+    def update_menu_item(menu_id, item_name, price, uom_id, is_active, is_deleted):
         print("UPDATE")
         conn = psycopg2.connect(
             database="Demo", user="postgres", password="12345", host="localhost")
         c = conn.cursor()
 
         c.execute("update menu set item_name = %s, price = %s, uom_id = %s, is_active = %s, is_deleted = %s, created_date = %s where id = %s",
-        (item_name, price, uom_id, True, False, datetime.now(), item_id))
+        (item_name, price, uom_id, is_active, is_deleted, datetime.now(), menu_id))
 
         conn.commit()
         conn.close()
@@ -62,7 +62,7 @@ class CreateMenuModel():
             database="Demo", user="postgres", password="12345", host="localhost")
         c = conn.cursor()
 
-        c.execute("""select item_name, price, uom, menu.is_active, menu.is_deleted, uom_id
+        c.execute("""select item_name, price, uom, menu.is_active, menu.is_deleted, uom_id, menu.id
                     from menu left join uom on menu.uom_id = uom.id
                     order by menu.id desc""")
         result = c.fetchall()
