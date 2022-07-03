@@ -3,7 +3,7 @@ from tkinter import DISABLED, END, StringVar, ttk
 import json
 from tkinter import messagebox
 from libraries.amstreeview import AMSTreeVIew
-from libraries.library import AMSComboBox
+from libraries.amscombobox import AMSComboBox
 from libraries.amsgetindex import AMSGetIndex
 from libraries.amsbill import AMSBill
 
@@ -91,30 +91,25 @@ class TakeOrder(tk.Frame):
         table_number_label = ttk.Label(lf, text="TABLE NUMBER")
         table_number_label.grid(row=0, column=0, sticky=tk.W, pady=5, padx=5)
 
-        table_number = AMSComboBox(container=lf, parent_class=self, values=self.table_number_ddl, id='table_number_value', index='table_number_index', placeholder='PLEASE SELECT A TABLE')
-        table_number1 = table_number()
-        table_number1.current(self.default_table_number)
-        table_number1.bind('<<ComboboxSelected>>', lambda event: self.check_occupied_table(self.table_number_value, attendant1, company1), add=True)
-        table_number1.focus()
-        table_number1.grid(row=0, column=1, pady=5, padx=15, sticky=tk.E+tk.W, ipadx=50)
+        table_number = AMSComboBox(container=lf, parent_class=self, values=self.table_number_ddl, id='table_number_value', index='table_number_index', placeholder='PLEASE SELECT A TABLE', filter=True)
+        table_number.current(self.default_table_number)
+        table_number.bind('<<ComboboxSelected>>', lambda event: self.check_occupied_table(self.table_number_value, attendant, company), add=True)
+        table_number.focus()
+        table_number.grid(row=0, column=1, pady=5, padx=15, sticky=tk.E+tk.W, ipadx=50)
 
 
         attendant_label = ttk.Label(lf, text="ATTENDANT")
         attendant_label.grid(row=1, column=0, sticky=tk.W, pady=5, padx=5)
 
-        attendant = AMSComboBox(container = lf, parent_class = self, values=self.attendant_ddl, id='attendant_value', index='attendant_index', placeholder='PLEASE SELECT AN ATTENDANT')
-        attendant1 = attendant()
-        # attendant1.current(self.attendant)
-        attendant1.grid(row=1, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+        attendant = AMSComboBox(container = lf, parent_class = self, values=self.attendant_ddl, id='attendant_value', index='attendant_index', placeholder='PLEASE SELECT AN ATTENDANT', filter=True)
+        attendant.grid(row=1, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
 
         company_label = ttk.Label(lf, text="COMPANY")
         company_label.grid(row=2, column=0, sticky=tk.W, pady=5, padx=5)
 
-        company = AMSComboBox(container=lf, parent_class=self, values=self.company_ddl, id='company_value', index='company_index', placeholder='PLEASE SELECT A COMPANY')
-        company1 = company()
-        # company1.current(self.company)
-        company1.grid(row=2, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
+        company = AMSComboBox(container=lf, parent_class=self, values=self.company_ddl, id='company_value', index='company_index', placeholder='PLEASE SELECT A COMPANY', filter=True)
+        company.grid(row=2, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
 
     def items(self):
@@ -142,10 +137,9 @@ class TakeOrder(tk.Frame):
         # menu.bind('<<ComboboxSelected>>', lambda event: get_uom(uom))
         # menu.grid(row=1, column=2, sticky=tk.NE, padx=5, pady=5)
 
-        menu = AMSComboBox(container=item_lf, parent_class=self, values=self.menu, id='menu_value', index='menu_index', placeholder='PLEASE SELECT A MENU')
-        menu1 = menu()
-        menu1.bind('<<ComboboxSelected>>', lambda event: get_uom(uom), add=True)
-        menu1.grid(row=1, column=2, sticky=tk.NE, padx=5, pady=5)
+        menu = AMSComboBox(container=item_lf, parent_class=self, values=self.menu, id='menu_value', index='menu_index', placeholder='PLEASE SELECT A MENU', filter=True)
+        menu.bind('<<ComboboxSelected>>', lambda event: get_uom(uom), add=True)
+        menu.grid(row=1, column=2, sticky=tk.NE, padx=5, pady=5)
 
 
         qty_label = ttk.Label(item_lf, text="QUANTITY")
@@ -162,16 +156,16 @@ class TakeOrder(tk.Frame):
         uom.grid(row=3, column=2, pady=5, padx=5)
         uom.configure(state='disabled')
 
-        add_btn = ttk.Button(item_lf, text="ADD", command=lambda: self.add_items(qty.get(), menu1, qty, uom))
+        add_btn = ttk.Button(item_lf, text="ADD", command=lambda: self.add_items(qty.get(), menu, qty, uom))
         add_btn.grid(row=1, column=3, sticky=tk.W, padx=13)
 
-        add_btn.bind('<Return>', lambda event: self.add_items(qty.get(), menu1, qty, uom))
+        add_btn.bind('<Return>', lambda event: self.add_items(qty.get(), menu, qty, uom))
 
 
-        clear_btn = ttk.Button(item_lf, text="CLEAR", command = lambda: self.clear_values(menu1, qty, uom))
+        clear_btn = ttk.Button(item_lf, text="CLEAR", command = lambda: self.clear_values(menu, qty, uom))
         clear_btn.grid(row=2, column=3, sticky=tk.W, padx=13)
 
-        clear_btn.bind('<Return>', lambda event: self.clear_values(menu1,
+        clear_btn.bind('<Return>', lambda event: self.clear_values(menu,
                                                                 qty, uom))
 
         # return item_lf

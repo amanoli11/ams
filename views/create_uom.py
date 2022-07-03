@@ -45,71 +45,70 @@ class CreateUom(ttk.Frame):
         label.grid(column=0, row=0, sticky=tk.W, padx=10)
 
 
-        global lf
-        lf = ttk.LabelFrame(self, text='Create UOM')
-        lf.grid(column=0, row=1, padx=10, pady=10, sticky=tk.NW)
+        
+        self.lf = ttk.LabelFrame(self, text='Create UOM')
+        self.lf.grid(column=0, row=1, padx=10, pady=10, sticky=tk.NW)
 
-        uom_name_label = ttk.Label(lf, text="UOM NAME")
+        uom_name_label = ttk.Label(self.lf, text="UOM NAME")
         uom_name_label.grid(row=1, column=0, sticky=tk.W, pady=5, padx=5)
 
 
-        global uom_name
-        uom_name = AMSEntryBox(self, lf, value='uom_name', placeholder="ENTER A UOM")
-        uom_name.focus()
-        uom_name.grid(row=1, column=1, pady=5, padx=15, ipadx=6.5)
+        self.uom_name_widget = AMSEntryBox(self, self.lf, value='uom_name', placeholder="ENTER A UOM")
+        self.uom_name_widget.focus()
+        self.uom_name_widget.grid(row=1, column=1, pady=5, padx=15, ipadx=6.5)
 
-        is_active_label = ttk.Label(lf, text="IS ACTIVE")
+        is_active_label = ttk.Label(self.lf, text="IS ACTIVE")
         is_active_label.grid(row=2, column=0, sticky=tk.W, pady=5, padx=5)
 
-        global is_active
-        is_active = AMSComboBox(lf, self, values = self.is_active, id='is_active_value', index="is_active_index", placeholder="IS ACTIVE")
-        is_active.current(0)
-        is_active.grid(row=2, column=1)
+        
+        self.is_active_widget = AMSComboBox(self.lf, self, values = self.is_active, id='is_active_value', index="is_active_index", placeholder="IS ACTIVE")
+        self.is_active_widget.current(0)
+        self.is_active_widget.grid(row=2, column=1)
 
-        is_deleted_label = ttk.Label(lf, text="IS DELETED")
+        is_deleted_label = ttk.Label(self.lf, text="IS DELETED")
         is_deleted_label.grid(row=3, column=0, sticky=tk.W, pady=5, padx=5)
 
-        global is_deleted
-        is_deleted = AMSComboBox(lf, self, values = self.is_active, id='is_deleted_value', index="is_deleted_index", placeholder="IS DELETED")
-        is_deleted.current(1)
-        is_deleted.grid(row=3, column=1)
+        
+        self.is_deleted_widget = AMSComboBox(self.lf, self, values = self.is_active, id='is_deleted_value', index="is_deleted_index", placeholder="IS DELETED")
+        self.is_deleted_widget.current(1)
+        self.is_deleted_widget.grid(row=3, column=1)
 
-        global submit_btn
-        submit_btn = ttk.Button(lf, text="SAVE UOM", command=self.save)
-        submit_btn.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
+        
+        self.submit_btn_widget = ttk.Button(self.lf, text="SAVE UOM", command=self.save)
+        self.submit_btn_widget.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
 
-        global update_btn
-        update_btn = ttk.Button(lf, text="UPDATE UOM", command=self.update)
+        
+        self.update_btn_widget = ttk.Button(self.lf, text="UPDATE UOM", command=self.update)
 
-        clear_btn = ttk.Button(lf, text="CLEAR", command=self.clear_field)
+        clear_btn = ttk.Button(self.lf, text="CLEAR", command=self.clear_field)
         clear_btn.grid(row=4, column=0, sticky=tk.W, pady=8, padx=13)
 
-        options = tk.Menu(lf, tearoff = False)
+        options = tk.Menu(self.lf, tearoff = False)
         options.add_command(label ="RESET", command=self.reset_field)
 
         def option_menu(event):
             options.tk_popup(event.x_root, event.y_root)
 
 
-        lf.bind("<Button-3>", option_menu)
+        self.lf.bind("<Button-3>", option_menu)
 
 
-        return lf
+        return self.lf
 
     def reset_field(self):
-        update_btn.grid_remove()
-        submit_btn.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
+        self.update_btn_widget.grid_remove()
+        self.submit_btn_widget.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
 
         self.clear_field()
 
 
 
     def clear_field(self):
-        uom_name.delete(0, END)
-        uom_name.focus()
+        self.uom_name_widget.delete(0, END)
+        self.uom_name_widget.focus()
 
-        is_active.current(0)
-        is_deleted.current(1)
+        self.is_active_widget.current(0)
+        self.is_deleted_widget.current(1)
         
 
     def save(self):
@@ -124,10 +123,10 @@ class CreateUom(ttk.Frame):
         # self.save_uom()
         self.uom_id = 0
 
-        update_btn.grid_remove()
-        submit_btn.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
+        self.update_btn_widget.grid_remove()
+        self.submit_btn_widget.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
         self.clear_field()
-        uom_name.focus()
+        self.uom_name_widget.focus()
         self.show_uom_items()
 
 
@@ -151,16 +150,16 @@ class CreateUom(ttk.Frame):
             self.uom_name = y[0]
             self.uom_id = y[3]
 
-            submit_btn.grid_remove()
+            self.submit_btn_widget.grid_remove()
 
-            uom_name.delete(0, END)
-            uom_name.insert(0, y[0])
+            self.uom_name_widget.delete(0, END)
+            self.uom_name_widget.insert(0, y[0])
 
-            update_btn.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
+            self.update_btn_widget.grid(row=4, column=1, sticky=tk.E, pady=8, padx=13)
 
-            is_active.current(AMSGetIndex(self.is_active, y[1]))
+            self.is_active_widget.current(AMSGetIndex(self.is_active, y[1]))
 
-            is_deleted.current(AMSGetIndex(self.is_active, y[2]))
+            self.is_deleted_widget.current(AMSGetIndex(self.is_active, y[2]))
 
         tree.bind('<<TreeviewSelect>>', item_selected)
 

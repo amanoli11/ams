@@ -58,6 +58,7 @@ def AMSComboBox(container, parent_class, values, id, index, placeholder = "PLEAS
     if filter == False:
         combobox.bind('<<ComboboxSelected>>', get_key)
         combobox.config(state='readonly')
+        combobox.bind("<Alt-c>", clear_placeholder)
     
     if filter:
         combobox.bind("<KeyPress>", remove_placeholder_while_typing)

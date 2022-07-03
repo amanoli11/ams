@@ -5,10 +5,9 @@ from tkinter import messagebox
 
 def AMSTreeVIew(parent, table_column, table_values, frame_name = "TABLE", table_height = 10):
 
-    global parent_for_filter
+
     parent_for_filter = parent
 
-    global table_column_for_filter
     table_column_for_filter = table_column
 
     lf = ttk.LabelFrame(parent, text=frame_name)
@@ -25,7 +24,6 @@ def AMSTreeVIew(parent, table_column, table_values, frame_name = "TABLE", table_
         messagebox.showinfo("COMPLETE!!!", "Table Exported Successfully.")
 
 
-    global options
     options = Menu(tree, tearoff=False)
     options.add_command(label="EXPORT TO EXCEL", command=lambda: write_to_csv(table_values))
 
@@ -74,29 +72,29 @@ def AMSStripedRows(tree, table_values):
 
 
 
-def filter_table():
+# def filter_table():
 
-    row_count = 0
-    new_filter_window = Toplevel(parent_for_filter)
-    new_filter_window.title("Filter Table Window")
+#     row_count = 0
+#     new_filter_window = Toplevel(parent_for_filter)
+#     new_filter_window.title("Filter Table Window")
 
 
-    string_array = []
+#     string_array = []
 
-    for i in table_column_for_filter:
+#     for i in table_column_for_filter:
 
-        filter_label = tk.Label(new_filter_window, text=i)
-        filter_label.grid(row=row_count, column=0, padx=10, pady=10, sticky=tk.NW)
+#         filter_label = tk.Label(new_filter_window, text=i)
+#         filter_label.grid(row=row_count, column=0, padx=10, pady=10, sticky=tk.NW)
 
-        filter_entry = tk.Entry(new_filter_window)
-        filter_entry.grid(row=row_count, column=1, padx=10)
+#         filter_entry = tk.Entry(new_filter_window)
+#         filter_entry.grid(row=row_count, column=1, padx=10)
 
-        row_count += 1
+#         row_count += 1
 
-        string_array.append(filter_entry)
+#         string_array.append(filter_entry)
 
-    parent_for_filter.filter_val = string_array
-    parent_for_filter.filter_window = new_filter_window
+#     parent_for_filter.filter_val = string_array
+#     parent_for_filter.filter_window = new_filter_window
 
 
 # def filter_table():

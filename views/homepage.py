@@ -45,9 +45,9 @@ class Homepage(tk.Tk):
         #     frame.grid(row=0, column=0, sticky="nsew")
         self.bind('<Control-n>', self.open_new_window)
         self.bind('<Control-q>', self.quit_app)
-        # self.show_frame(TakeOrderController, TakeOrderModel, TakeOrder)
+        self.show_frame(TakeOrderController, TakeOrderModel, TakeOrder)
         # self.show_frame(CreateUomController, CreateUomModel, CreateUom)
-        self.show_frame(CreateMenuController, CreateMenuModel, CreateMenu)
+        # self.show_frame(CreateMenuController, CreateMenuModel, CreateMenu)
 
     # to display the current frame passed as
     # parameter

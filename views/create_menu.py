@@ -19,6 +19,7 @@ class CreateMenu(ttk.Frame):
     def __init__(self, container):
 
         super().__init__(container)
+
         # container.geometry("1000x600")
         container.title("Create Menu")
         container.geometry('1200x600')
@@ -26,19 +27,11 @@ class CreateMenu(ttk.Frame):
         container.height = 600
         container.resizable(False, False)
         self.container = container
-        self.uom_values = {}
-        self.uom_list = []
-        # self.uom_id = {}
-        self.item_name1 = ""
-        # self.price = 0
-        self.uom = -1
-        self.item_id = 0
-        self.show_menu_ddl()
-        # self.create_menu_items()
-        self.controller = None
-        self.output = {}
-        self.selected_value = {}
 
+
+        # initial values obtained from database 
+        self.output = {}
+        self.uom_ddl = None
 
 
         #libraries ko variable haru
@@ -48,25 +41,28 @@ class CreateMenu(ttk.Frame):
         self.uom_id = None
         self.uom_index = None
 
-        self.uom_ddl = None
 
         self.is_active = is_active
 
         self.is_active_value = True
         self.is_deleted_value = False
 
+        self.container.bind('<Control-s>', self.submit_menu)
+
+
     def set_controller(self, controller):
         self.controller = controller
         self.collect_initial_values()
         self.create_menu_items()
-        self.show_menu_items()
+        self.list_menu_items()
 
     def create_menu_items(self):
+
         label = ttk.Label(self, text="Create Menu", font="Verdana, 15")
         label.grid(column=0, row=0, sticky=tk.W, padx=10)
 
 
-        
+
         self.lf = ttk.LabelFrame(self, text='Create Menu')
         self.lf.grid(column=0, row=1, padx=10, pady=(10, 400), sticky=tk.NW)
 
@@ -83,6 +79,9 @@ class CreateMenu(ttk.Frame):
         # item_name.bind("<KeyRelease>", caps)
         self.item_name_widget.focus()
         self.item_name_widget.grid(row=1, column=1, pady=5, padx=15, ipadx=40)
+
+
+        self.container.bind('<Control-Key-1>', lambda event: self.item_name_widget.focus())
 
 
         price_label = ttk.Label(self.lf, text="PRICE")
@@ -183,7 +182,7 @@ class CreateMenu(ttk.Frame):
 
         self.is_deleted_widget.current(AMSGetIndex(self.is_active, is_deleted))
 
-        self.submit_btn.grid_remove()
+        self.submit_btn.grid_forget()
 
         # selected = self.tree.focus()
         # values = self.tree.item(selected, values=(name,))
@@ -191,24 +190,29 @@ class CreateMenu(ttk.Frame):
 
 
 
-        def update(self, event):
+        def update(item_name, price, uom, is_active_value, is_deleted_value, uom_id, menu_id, event):
 
-            selected = self.tree.focus()
+            selected = self.tree.selection()
             print(selected)
-            self.tree.item(selected, values=(self.item_name, self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id, menu_id))
-            self.controller.update_menu_item(menu_id, self.item_name, self.price, self.uom_id, self.is_active_value, self.is_deleted_value)
+            self.tree.item(selected, values=(item_name, price, uom, is_active_value, is_deleted_value, uom_id, menu_id))
+            self.controller.update_menu_item(menu_id, item_name, price, uom_id, is_active_value, is_deleted_value)
 
-            self.clear_values(event=None)
+            # self.clear_values(event=None)
+            self.reset_field()
             
-            self.controller.lister(self)
+            # self.controller.lister(self)
 
-        self.update_btn = ttk.Button(self.lf, text="UPDATE MENU", command = lambda: update(self, event= None))
-        self.update_btn.bind('<Return>', lambda event: update(self, event = None))
+            print("inside", menu_id)
+
+        self.update_btn = ttk.Button(self.lf, text="UPDATE MENU", command = lambda: update(self.item_name_widget.get(), self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id, menu_id, event=None))
+        self.update_btn.bind('<Return>', lambda event: update(self.item_name_widget.get(), self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id, menu_id, event=None))
+        self.container.bind('<Control-u>', lambda event: update(self.item_name_widget.get(), self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id, menu_id, event=None))
+        print('outside', menu_id)
 
         self.update_btn.grid(row=6, column=1, sticky=tk.E, pady=8, padx=13)
 
 
-    def show_menu_items(self):
+    def list_menu_items(self):
         
         columns = ("MENU NAME", "PRICE", "UOM", "IS ACTIVE", "IS DELETED", "UOM ID", "MENU ID")
         frame, tree, option = AMSTreeVIew(self, columns, self.output, frame_name="MENU ITEMS", table_height=20)
@@ -227,7 +231,7 @@ class CreateMenu(ttk.Frame):
             x = self.tree.selection()
             y = self.tree.item(x)['values']
 
-            print(y)
+            # print(y)
 
             self.item_name = y[0]
             self.price = y[1]
@@ -242,22 +246,6 @@ class CreateMenu(ttk.Frame):
 
         frame.grid(row=1, column=1, sticky=tk.NE, padx=(30, 0))
 
-
-    def show_menu_ddl(self):
-        conn = psycopg2.connect(
-            database="Demo", user="postgres", password="12345", host="localhost")
-        c = conn.cursor()
-
-        c.execute("select id, uom from uom")
-        result = c.fetchall()
-        out = [row[1] for row in result]
-        # out = [item for t in result for item in t]
-        self.uom_values = out
-
-        self.uom_list = result
-
-        conn.commit()
-        conn.close()
 
     def clear_values(self, event):
         
@@ -277,6 +265,7 @@ class CreateMenu(ttk.Frame):
         self.is_active_widget.current(0)
         self.is_deleted_widget.current(1)
 
+
     def submit_menu(self, event):
 
         # self.tree.insert("", index=0, values = (self.item_name_widget.get(), self.price_widget.get(), self.uom_widget.get(), self.is_active_value, self.is_deleted_value, self.uom_id))
@@ -293,38 +282,7 @@ class CreateMenu(ttk.Frame):
 
         self.clear_values(event=None)
 
-        # for i in self.output:
-        #     self.tree.insert("", END, values=i)
-
-
-
-
-        # selected = self.tree.focus()
-        # print(selected)
-        # self.tree.item(selected, values=(self.item_name, self.price, self.uom_widget.get(), self.is_active_value, self.is_deleted_value, uom_id, menu_id))
-        # self.controller.update_menu_item(menu_id, self.item_name, self.price, self.uom_id, self.is_active_value, self.is_deleted_value)
-        # self.clear_values(event=None)
-
-
-
-
-
-        # self.controller.lister(self)
-        # self.show_menu_items()
-
-    def submit_updated_menu(self, item_id, item_name, price, uom, uom_id, item_del, price_del, uom_del):
-        self.controller.update(item_id, item_name, price, uom, uom_id)
-        self.clear_values(item_del, price_del, uom_del)
-        self.show_menu_items()
-        self.create_menu_items()
-
-
-    # def submit_menu(self, item_name, price, uom, item_del, price_del, uom_del):
-    #     CreateMenuController(self, item_name, price, uom)
-
-    #     item_del, price_del, uom_del
-
 
     def collect_initial_values(self):
-        self.controller.collect_initial_values(self)
-        self.controller.lister(self)
+        self.controller.collect_initial_values(self) #fetch value to self.uom_ddl
+        self.controller.lister(self) #fetch value to self.output
