@@ -9,7 +9,7 @@ from libraries.amsbill import AMSBill
 
 class TakeOrder(tk.Frame):
     
-    def __init__(self, container):
+    def __init__(self, container, table_value = None):
         super().__init__(container)
 
         container.geometry('850x600')
@@ -27,6 +27,8 @@ class TakeOrder(tk.Frame):
         self.company_ddl = {}
         self.menu_price = {}
         self.occupied_tables = {}
+
+        self.table_value = table_value
 
         #for table ddl
         self.table_number_value = None
@@ -91,11 +93,11 @@ class TakeOrder(tk.Frame):
         table_number_label = ttk.Label(lf, text="TABLE NUMBER")
         table_number_label.grid(row=0, column=0, sticky=tk.W, pady=5, padx=5)
 
-        table_number = AMSComboBox(container=lf, parent_class=self, values=self.table_number_ddl, id='table_number_value', index='table_number_index', placeholder='PLEASE SELECT A TABLE', filter=True)
-        table_number.current(self.default_table_number)
-        table_number.bind('<<ComboboxSelected>>', lambda event: self.check_occupied_table(self.table_number_value, attendant, company), add=True)
-        table_number.focus()
-        table_number.grid(row=0, column=1, pady=5, padx=15, sticky=tk.E+tk.W, ipadx=50)
+        self.table_number_widget = AMSComboBox(container=lf, parent_class=self, values=self.table_number_ddl, id='table_number_value', index='table_number_index', placeholder='PLEASE SELECT A TABLE', filter=True)
+        self.table_number_widget.current(self.default_table_number)
+        self.table_number_widget.bind('<<ComboboxSelected>>', lambda event: self.check_occupied_table(self.table_number_value, attendant, company), add=True)
+        self.table_number_widget.focus()
+        self.table_number_widget.grid(row=0, column=1, pady=5, padx=15, sticky=tk.E+tk.W, ipadx=50)
 
 
         attendant_label = ttk.Label(lf, text="ATTENDANT")
@@ -104,18 +106,19 @@ class TakeOrder(tk.Frame):
         attendant = AMSComboBox(container = lf, parent_class = self, values=self.attendant_ddl, id='attendant_value', index='attendant_index', placeholder='PLEASE SELECT AN ATTENDANT', filter=True)
         attendant.grid(row=1, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
-
         company_label = ttk.Label(lf, text="COMPANY")
         company_label.grid(row=2, column=0, sticky=tk.W, pady=5, padx=5)
 
         company = AMSComboBox(container=lf, parent_class=self, values=self.company_ddl, id='company_value', index='company_index', placeholder='PLEASE SELECT A COMPANY', filter=True)
         company.grid(row=2, column=1, pady=5, padx=15, sticky=tk.E+tk.W)
 
+        if self.table_value is not None:
+            self.check_occupied_table(self.table_value, attendant, company)
+            # print(self.table_value)
 
     def items(self):
         item_lf = ttk.LabelFrame(self, text='Item Details')
         item_lf.grid(column=1, row=1, padx=10, pady=10, sticky=tk.NW)
-
 
         menu_label = ttk.Label(item_lf, text="MENU")
         menu_label.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
@@ -230,7 +233,6 @@ class TakeOrder(tk.Frame):
         create_bill_btn.grid(row=3, column=1, sticky=tk.NE, padx=10)
 
     def create_bill(self, event):
-        print(self.list_items)
         
         item_name = []
         price = []
@@ -378,12 +380,18 @@ class TakeOrder(tk.Frame):
     def check_occupied_table(self, table_id, attendant1, company1):
         self.controller.check_occupied_table(self, table_id)
         
+        if self.table_value is not None:
+            self.table_number_widget.current(AMSGetIndex(self.table_number_ddl, table_id))
+
+            self.table_number_value = table_id
+
         if len(self.occupied_tables) > 0:
             self.is_occupied = True
             for i in self.occupied_tables:
                 self.list_items = i[4]
                 self.attendant_value = i[2]
                 self.company_value = i[3]
+
 
             attendant1.current(AMSGetIndex(self.attendant_ddl, self.attendant_value))
             attendant1.configure(state='disabled', foreground = 'blue')
@@ -411,6 +419,7 @@ class TakeOrder(tk.Frame):
 
     
     def reset_page(self):
+        self.table_value = None
         self.list_items = []
         self.is_occupied = False
         
