@@ -6,7 +6,7 @@ from tkinter import END, StringVar, ttk
 # import sys
   
 # # adding Folder_2 to the system path
-# sys.path.insert(0, '/home/amanoli/ams')
+# sys.path.insert(0, 'E:/Development/ams')
 
 from libraries.amscombobox import AMSComboBox
 from libraries.amsentrybox import AMSEntryBox

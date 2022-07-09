@@ -181,10 +181,16 @@ class AMSBill():
 
         payable = f"Payable Amount: {self.payable_amount}\n"
 
-        txtfile = open('/home/amanoli/Documents/bill', 'w')
+        # webbrowser.get('C:\Program Files\Google\Chrome\Application\chrome.exe')
+        # webbrowser.get('google-chrome')
+        chrome_path="C:\Program Files\Google\Chrome\Application\chrome.exe"
+        webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(chrome_path))
+        
+        txtfile = open('Bill', 'w')
         txtfile.write(restro+datetime_now+company+pan+table+dotted_line+str(df)+'\n\n'+dotted_line+total+discount+payable)
         txtfile.close()
-        webbrowser.open_new_tab('/home/amanoli/Documents/bill')
+        webbrowser.get('chrome').open_new_tab('E:/Development/ams/Bill')
+        # webbrowser.open_new_tab('Bill')
         messagebox.showinfo("Txt Export", "Export Completed")
         self.top.destroy()
 

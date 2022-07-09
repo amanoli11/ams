@@ -7,7 +7,7 @@ class DashboardModel():
     
     def initial_values(parent):
         
-        query_for_table_status = "select tm.table_number, coalesce(ot.id::varchar, 'NOT OCCUPIED') as table_status, tm.id from table_management tm left join occupied_table ot on tm.id = ot.table_id"
+        query_for_table_status = "select tm.table_number, coalesce(ot.id::varchar, 'NOT OCCUPIED') as table_status, tm.id from table_management tm  left join occupied_table ot on tm.id = ot.table_id order by tm.id asc"
 
         query_for_vacant_table = '''select count (*) from (select coalesce(ot.id::varchar, 'NOT OCCUPIED') as table_status from table_management tm
         left join occupied_table ot on tm.id = ot.table_id)x

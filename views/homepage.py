@@ -50,6 +50,7 @@ class Homepage(tk.Tk):
         #     frame.grid(row=0, column=0, sticky="nsew")
         self.bind('<Control-n>', self.open_new_window)
         self.bind('<Control-q>', self.quit_app)
+        self.bind('<Alt-d>', lambda event: self.show_frame(DashboardController, DashboardModel, Dashboard))
         # self.show_frame(TakeOrderController, TakeOrderModel, TakeOrder)
         # self.show_frame(CreateUomController, CreateUomModel, CreateUom)
         # self.show_frame(CreateMenuController, CreateMenuModel, CreateMenu)
